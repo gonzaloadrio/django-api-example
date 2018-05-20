@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=situm
+      - POSTGRES_PASSWORD=qwerty
+    ports:
+      - 5000:5432
+
+volumes:
+  pgdata:
