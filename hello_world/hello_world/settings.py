@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Apps
     'api.apps.ApiConfig',
     'core.apps.CoreConfig',
+    'situm.apps.SitumConfig',
     # Extras
     'rest_framework',
 ]
