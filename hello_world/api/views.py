@@ -22,6 +22,21 @@ class CustomDataView(views.APIView):
     def get(self, request):
         points = [(10, 5), (20, 5), (20, 10), (15, 7), (10, 10)]
         point = (15, 6)
+
+        num_points = len(points)
+
+        polygons = grid()
+
+        for i in range(len(polygons)):
+            for j in range(len(polygons[i])):
+                polygon = polygons[i][j]
+                for point in points:
+                    if inside_polygon(point[0], point[1], polygon['points']):
+                        polygons[i][j]['points_inside'] += 1
+                polygons[i][j]['weight'] = num_points / polygons[i][j]['points_inside']
+
+        print(str(polygons))
+
         serializer = serializers.CustomDataSerializer(
             many=True,
             data=[
@@ -65,3 +80,25 @@ def inside_polygon(x, y, points):
 def inside_circle(x, y, center_x, center_y, radius):
     dist = math.hypot(center_x - x, center_y - y)
     return radius > dist
+
+
+def grid():
+    step_count = 10
+    width = 300
+    height = 300
+    step_size = width / step_count
+
+    x_start = 0
+    y_start = 0
+
+    polygons = [[]]
+
+    for i, x in range(0, 30, 1), range(x_start, width, step_count):
+        for j, y in range(0, 30, 1), range(y_start, height, step_count):
+            polygons[i][j] = {
+                'points': ((x, y), (x + step_count, y), (x + step_count, y + step_count), (x, y + step_count),),
+                'points_inside': 0,
+                'weight': 0
+            }
+
+    return polygons
