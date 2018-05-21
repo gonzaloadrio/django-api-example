@@ -19,3 +19,13 @@ class BuildingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Building
         fields = ('id', 's_id', 'name', 'description', 'location', 'position', 'floors',)
+
+class CustomDataSerializer(serializers.Serializer):
+    nombre = serializers.CharField()
+    cantidad = serializers.IntegerField()
+    varios = serializers.ListField()
+    point = serializers.ListField()
+    is_in_polygon = serializers.BooleanField()
+    is_in_circle = serializers.BooleanField()
+
+
