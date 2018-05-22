@@ -1,3 +1,6 @@
+import json
+import random
+
 from rest_framework import viewsets, permissions, views, response
 import math
 from api import serializers
@@ -20,26 +23,41 @@ class FloorViewSet(viewsets.ModelViewSet):
 class CustomDataView(views.APIView):
 
     def get(self, request):
-        points = [(10, 5), (20, 5), (20, 10), (15, 7), (10, 10)]
+        points = [(4, 4)]
+        for i in range(0, 1000):
+            x = random.randint(0, 800)
+            y = random.randint(0, 600)
+            points.append((x, y))
+
         point = (15, 6)
 
         num_points = len(points)
 
-        polygons = grid()
+        polygons = grid(points)
 
-        for i in range(len(polygons)):
-            for j in range(len(polygons[i])):
-                polygon = polygons[i][j]
-                for point in points:
-                    if inside_polygon(point[0], point[1], polygon['points']):
-                        polygons[i][j]['points_inside'] += 1
-                polygons[i][j]['weight'] = num_points / polygons[i][j]['points_inside']
+        for i in range(0, len(polygons)):
+            for j in range(0, len(polygons[i])):
+                if polygons[i][j]['points_inside'] > 0:
+                    print(polygons[i][j])
 
-        print(str(polygons))
+        # for i in range(0, len(polygons)):
+        #     for j in range(0, len(polygons[i])):
+        #         polygon = polygons[i][j]
+        #         for point in points:
+        #             if inside_polygon(point[0], point[1], polygon['points']):
+        #                 polygons[i][j]['points_inside'] += 1
+        #         if polygons[i][j]['points_inside'] is not 0:
+        #             polygons[i][j]['weight'] = polygons[i][j]['points_inside'] / num_points
+
+        with open('data/data.json', 'w') as outfile:
+            json.dump(polygons, outfile, indent=4)
+
+        # print(str(polygons))
 
         serializer = serializers.CustomDataSerializer(
             many=True,
-            data=[
+            data=
+            [
                 {
                     'nombre': 'Gonzalo',
                     'cantidad': 28,
@@ -82,23 +100,36 @@ def inside_circle(x, y, center_x, center_y, radius):
     return radius > dist
 
 
-def grid():
-    step_count = 10
-    width = 300
-    height = 300
-    step_size = width / step_count
+def grid(points):
+    step_count = 50
+    width = 800
+    height = 600
 
     x_start = 0
     y_start = 0
 
-    polygons = [[]]
+    polygons = []
 
-    for i, x in range(0, 30, 1), range(x_start, width, step_count):
-        for j, y in range(0, 30, 1), range(y_start, height, step_count):
-            polygons[i][j] = {
-                'points': ((x, y), (x + step_count, y), (x + step_count, y + step_count), (x, y + step_count),),
-                'points_inside': 0,
-                'weight': 0
-            }
+    for i, x in enumerate(range(x_start, width, step_count)):
+        polygons.append([])
+        for j, y in enumerate(range(y_start, height, step_count)):
+            polygons[i].append(
+                {
+                    'points':
+                        [
+                            [x, y],
+                            [x + step_count, y],
+                            [x + step_count, y + step_count],
+                            [x, y + step_count]
+                        ],
+                    'points_inside': 0,
+                    'weight': 0
+                }
+            )
+            for point in points:
+                if inside_polygon(point[0], point[1], polygons[i][j]['points']):
+                    polygons[i][j]['points_inside'] += 1
+            if polygons[i][j]['points_inside'] is not 0:
+                polygons[i][j]['weight'] = polygons[i][j]['points_inside'] / len(points)
 
     return polygons
